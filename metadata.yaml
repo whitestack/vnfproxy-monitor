@@ -1,0 +1,12 @@
+name: vnfproxy-getvfnmetrics
+summary: example to send scripts to VNF
+maintainer: Jose Miguel Guzman <jmguzman@whitestack.com>
+description: |
+  Provides example for interacting with Linux VNF
+tags:
+  - osm
+  - vnf
+series:
+  - trusty
+  - xenial
+subordinate: false

@@ -1,0 +1,4 @@
+#!/bin/bash
+date >> /tmp/collect.log
+
+# hooks/collect-metrics.py 2>/tmp/collect.sdterr 1>/tmp/collect.sdtout
