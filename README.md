@@ -61,8 +61,8 @@ You will see this invocation in juju debug-logs
 
 *update-status* interval is adjustable, by invoking
 ```
-$ juju model-config -m controller update-status-hook-interval=30s
-$ juju model-config -m controller update-status-hook-interval
+$ juju model-config update-status-hook-interval=30s
+$ juju model-config update-status-hook-interval
 30s
 ```
 in the controller model.

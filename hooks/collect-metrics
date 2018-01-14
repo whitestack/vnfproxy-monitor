@@ -1,4 +1,48 @@
-#!/bin/bash
-date >> /tmp/collect.log
+#!/usr/bin/env python3
+import sys
+sys.path.append('lib')
 
-# hooks/collect-metrics.py 2>/tmp/collect.sdterr 1>/tmp/collect.sdtout
+import traceback
+
+from subprocess import check_call
+
+
+import os
+import time
+from charms.reactive import main
+
+with open('/tmp/collect.log', 'a') as logfile:
+    print("COLLECT-METRICS")
+
+    try:
+        logfile.write("MyHook\n")
+        logfile.write(time.strftime("%Y%m%d-%H%M%S\n"))
+        if os.environ:
+            for param in os.environ.keys():
+                logfile.write("ENVIRON %s=%s\n" % (param, os.environ[param]))
+        logfile.write('done\n\n')
+    except Exception as e:
+        logfile.write('Update Status failed:' + str(e))
+
+    logfile.write("ADD\n")
+
+    try:
+        command = ['add-metric', "m1=1", "m2=2", "time=%d" % int(time.time())]
+        print(command)
+        check_call(command)
+    except Exception as e:
+        logfile.write('Update Status failed:' + str(e))
+
+    logfile.write("REACTIVE\n")
+
+
+#try:
+#    main()
+#except Exception as e:
+#    with open('/tmp/collect.log', 'a') as logfile:
+#        exc_type, exc_value, exc_traceback = sys.exc_info()
+#        logfile.write('Reactive Exception:' + str(e))
+#        logfile.write(repr(traceback.format_exception(exc_type, exc_value, exc_traceback)))
+
+with open('/tmp/collect.log', 'a') as logfile:
+    logfile.write("DONE\n")

@@ -15,19 +15,4 @@
 # under the License.
 ##
 
-options:
-    osm-so-ip:
-        type: string
-        description: "OSM SO ip address"
-    osm-so-username:
-        type: string
-        description: "OSM SO username"
-    osm-so-password:
-        type: string
-        description: "OSM SO password"
-    osm-nsr-ref-id:
-        type: string
-        description: "OSM NSR Ref ID"
-    osm-scaling-group-name:
-        type: string
-        description: "OSM Scaling Group Name"
+tinydb

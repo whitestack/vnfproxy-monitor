@@ -1,48 +1,78 @@
-from charmhelpers.core.hookenv import (
-    action_fail,
-    action_set,
-    action_get,
-    config,
-    log,
-    add_metric)
-from subprocess import check_call
+import sys
+sys.path.append('lib')
 
-from charms.reactive import (
-    when,
-    remove_state as remove_flag,
-    hook)
+import time
+from charmhelpers.core.hookenv import (config, log)
 
-import datetime
+from charms.reactive import (when, hook)
+from charms.reactive.flags import (clear_flag)
+from vnf_db import insert_instance, db, get_last_instance
+from vnf_performance import scale_out
+from vnf_util import dump_config, dump_environment
 
-from vnf_performance import get_vnf_metrics, dump_config, evaluate_vnt_metrics
+
+@when('scaling.in')
+def update_status():
+    log('================== VNFPROXY-MONITOR.SCALE-IN')
+
+    clear_flag('scaling.out')
+    clear_flag('scaling.in')
+
+
+@when('scaling.out')
+def update_status():
+    log('================== VNFPROXY-MONITOR.SCALE-OUT')
+    try:
+        cfg = config()
+        log(cfg)
+        osm_so_ip = cfg['osm-so-ip']
+        osm_so_username = cfg['osm-so-username']
+        osm_so_password = cfg['osm-so-password']
+        osm_nsr_ref_id = cfg['osm-nsr-ref-id']
+        osm_scaling_group_name = cfg['osm-scaling-group-name']
+        scale_out(osm_so_ip, osm_so_username, osm_so_password, osm_nsr_ref_id, osm_scaling_group_name)
+    except Exception as e:
+        log('Scaling Out failed:' + str(e), level='ERROR')
+
+    clear_flag('scaling.out')
 
 
 @hook('update-status')
-def update_status():
-    log('VNFPROXY-MONITOR.UPDATE-STATUS')
-
+def hook_update_status():
     try:
-        metrics = get_vnf_metrics()
-        evaluate_vnt_metrics(metrics)
-    except Exception as e:
-        log("Error executing getvfnmetrics: " + str(e))
-
-    try:
-        with open("/tmp/update-status", "a") as my_file:
-            my_file.write(datetime.datetime.now().isoformat())
-    except Exception as e:
-        log("Error creating timestamp: " + str(e))
-
-
-@when('action.getvfnmetrics')
-def action_get_vnf_metrics():
-    log('VNFPROXY-MONITOR.ACTION.GET_VNF_METRICS')
-    try:
+        log('================== VNFPROXY-MONITOR.UPDATE-STATUS')
         dump_config()
-    except Exception as e:
-        log("Error dumping getvfnmetrics: " + str(e))
+        dump_environment()
 
-    try:
-        get_vnf_metrics()
+        for i in db.all():
+             log("Before #%d: %s" %(i.doc_id, i))
+
+        last = get_last_instance()
+        if last:
+            log("Last #%d %s " % (last.doc_id, last))
+
+        insert_instance({
+                'id': int(time.time()) - 1461024000
+            })
+
+        for i in db.all():
+            log("After   #%d: %s" % (i.doc_id, i))
+
     except Exception as e:
-        log("Error executing getvfnmetrics: " + str(e))
+        log('Update Status failed:' + str(e), level='ERROR')
+
+
+
+
+@hook('start')
+def hook_start():
+    log('================== VNFPROXY-MONITOR.HOOK.START')
+    dump_config()
+    dump_environment()
+
+
+@when('actions.start')
+def action_start():
+    log('================== VNFPROXY-MONITOR.ACTION.START')
+    dump_config()
+    dump_environment()
