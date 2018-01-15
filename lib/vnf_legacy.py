@@ -47,6 +47,7 @@ def get_vnf_metrics():
 
     return metrics
 
+
 def evaluate_vnt_metrics(metrics):
     log('evaluate_vnt_metrics')
     log(metrics)

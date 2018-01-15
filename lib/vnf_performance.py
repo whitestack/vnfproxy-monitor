@@ -12,7 +12,7 @@ from charmhelpers.core.hookenv import (
 from vnf_db import db
 
 
-def scale_out(hostname, username, password, nsr, scaline_group, instance, port=443):
+def scale_out(hostname, username, password, nsr, scaline_group, instance=None, timeout=3, port=443):
     if not instance:
         instance = int(time.time()) - 1461024000
 
@@ -21,13 +21,15 @@ def scale_out(hostname, username, password, nsr, scaline_group, instance, port=4
     url = 'https://{}:{}@{}:{}/v1/api/config/ns-instance-config/nsr/{}/scaling-group/{}/instance'.\
         format(username, password, hostname, port,
                nsr, scaline_group)
-    data = {
-        "instance": [
-            {"id": instance}
-        ]
-    }
+    log("Connecting to: %s" % url)
 
-    response = requests.post(url, data=data)
+    data = {
+        "instance":
+            {"id": instance}
+    }
+    log("Data: %s" % data)
+
+    response = requests.post(url, json=data, timeout=timeout, verify=False)
     log("Response Code %d" % response.status_code)
     log(response.text)
 

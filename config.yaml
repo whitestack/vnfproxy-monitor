@@ -19,15 +19,31 @@ options:
     osm-so-ip:
         type: string
         description: "OSM SO ip address"
+    osm-so-port:
+        type: int
+        description: "OSM SO tcp port"
+        default: 8008
     osm-so-username:
         type: string
         description: "OSM SO username"
     osm-so-password:
         type: string
         description: "OSM SO password"
+    osm-so-timeout:
+        type: int
+        description: "OSM SO timeout (secs)"
+        default: 15
     osm-nsr-ref-id:
         type: string
         description: "OSM NSR Ref ID"
     osm-scaling-group-name:
         type: string
         description: "OSM Scaling Group Name"
+    metrics-monitoring-enabled:
+        type: boolean
+        description: "Metrics monitoring enabled"
+        default: true
+    metrics-alarms-enabled:
+        type: boolean
+        description: "Metrics alarms enabled"
+        default: true
